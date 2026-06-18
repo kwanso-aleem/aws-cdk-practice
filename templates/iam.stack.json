@@ -1,0 +1,30 @@
+{
+  "groups": [
+    {
+      "id": "DeveloperGroup",
+      "name": "Developers",
+      "managedPolicies": ["AmazonEC2ReadOnlyAccess"],
+      "users": ["alice", "bob", "charlie"]
+    },
+    {
+      "id": "AdminsGroup",
+      "name": "Admins",
+      "managedPolicies": ["AdministratorAccess"],
+      "users": ["charlie", "david"]
+    },
+    {
+      "id": "OperationsGroup",
+      "name": "Operations",
+      "managedPolicies": ["AmazonS3ReadOnlyAccess"],
+      "users": ["david", "edward"]
+    }
+  ],
+  "users": [
+    { "id": "Alice", "name": "alice" },
+    { "id": "Bob", "name": "bob" },
+    { "id": "Charlie", "name": "charlie" },
+    { "id": "David", "name": "david" },
+    { "id": "Edward", "name": "edward" },
+    { "id": "Fred", "name": "fred" }
+  ]
+}
