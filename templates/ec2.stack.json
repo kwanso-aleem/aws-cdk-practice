@@ -1,0 +1,367 @@
+{
+ "Resources": {
+  "EC2VpcFFB3EF08": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MainStack/EC2Stack/EC2Vpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/Resource"
+   }
+  },
+  "EC2VpcPublicSubnetSubnet1SubnetF719D0A5": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "dummy1a",
+    "CidrBlock": "10.0.0.0/16",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "PublicSubnet"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "MainStack/EC2Stack/EC2Vpc/PublicSubnetSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EC2VpcFFB3EF08"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/PublicSubnetSubnet1/Subnet"
+   }
+  },
+  "EC2VpcPublicSubnetSubnet1RouteTable378274EE": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MainStack/EC2Stack/EC2Vpc/PublicSubnetSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EC2VpcFFB3EF08"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/PublicSubnetSubnet1/RouteTable"
+   }
+  },
+  "EC2VpcPublicSubnetSubnet1RouteTableAssociationBA046848": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "EC2VpcPublicSubnetSubnet1RouteTable378274EE"
+    },
+    "SubnetId": {
+     "Ref": "EC2VpcPublicSubnetSubnet1SubnetF719D0A5"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/PublicSubnetSubnet1/RouteTableAssociation"
+   }
+  },
+  "EC2VpcPublicSubnetSubnet1DefaultRouteD8D50EFF": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "EC2VpcIGW53D90023"
+    },
+    "RouteTableId": {
+     "Ref": "EC2VpcPublicSubnetSubnet1RouteTable378274EE"
+    }
+   },
+   "DependsOn": [
+    "EC2VpcVPCGW52F9120B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/PublicSubnetSubnet1/DefaultRoute"
+   }
+  },
+  "EC2VpcIGW53D90023": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MainStack/EC2Stack/EC2Vpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/IGW"
+   }
+  },
+  "EC2VpcVPCGW52F9120B": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "EC2VpcIGW53D90023"
+    },
+    "VpcId": {
+     "Ref": "EC2VpcFFB3EF08"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/VPCGW"
+   }
+  },
+  "EC2VpcRestrictDefaultSecurityGroupCustomResourceB912472C": {
+   "Type": "Custom::VpcRestrictDefaultSG",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E",
+      "Arn"
+     ]
+    },
+    "DefaultSecurityGroupId": {
+     "Fn::GetAtt": [
+      "EC2VpcFFB3EF08",
+      "DefaultSecurityGroup"
+     ]
+    },
+    "Account": "123456789012"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/EC2Vpc/RestrictDefaultSecurityGroupCustomResource/Default"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ],
+    "Policies": [
+     {
+      "PolicyName": "Inline",
+      "PolicyDocument": {
+       "Version": "2012-10-17",
+       "Statement": [
+        {
+         "Effect": "Allow",
+         "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
+         ],
+         "Resource": [
+          {
+           "Fn::Join": [
+            "",
+            [
+             "arn:aws:ec2:us-east-1:123456789012:security-group/",
+             {
+              "Fn::GetAtt": [
+               "EC2VpcFFB3EF08",
+               "DefaultSecurityGroup"
+              ]
+             }
+            ]
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Role"
+   }
+  },
+  "CustomVpcRestrictDefaultSGCustomResourceProviderHandlerDC833E5E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-east-1",
+     "S3Key": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "__entrypoint__.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": "Lambda function for removing all inbound/outbound rules from the VPC default security group"
+   },
+   "DependsOn": [
+    "CustomVpcRestrictDefaultSGCustomResourceProviderRole26592FE0"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/Custom::VpcRestrictDefaultSGCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+    "aws:asset:property": "Code"
+   }
+  },
+  "SecurityGroupDD263621": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Allow inbound HTTP traffic",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow inbound HTTP traffic",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "EC2VpcFFB3EF08"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/SecurityGroup/Resource"
+   }
+  },
+  "InstanceRole3CCE2F1D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/InstanceRole/Resource"
+   }
+  },
+  "MyInstanceInstanceProfile2784C631": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "InstanceRole3CCE2F1D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/MyInstance/InstanceProfile"
+   }
+  },
+  "MyInstanceA12EC128": {
+   "Type": "AWS::EC2::Instance",
+   "Properties": {
+    "AvailabilityZone": "dummy1a",
+    "IamInstanceProfile": {
+     "Ref": "MyInstanceInstanceProfile2784C631"
+    },
+    "ImageId": {
+     "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
+    },
+    "InstanceType": "t3.micro",
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "SecurityGroupDD263621",
+       "GroupId"
+      ]
+     }
+    ],
+    "SubnetId": {
+     "Ref": "EC2VpcPublicSubnetSubnet1SubnetF719D0A5"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "MainStack/EC2Stack/MyInstance"
+     }
+    ],
+    "UserData": {
+     "Fn::Base64": "#!/bin/bash\ndnf update -y\ndnf install -y nginx\nsystemctl start nginx\nsystemctl enable nginx\necho \"<h1>Hello World</h1>\" > /usr/share/nginx/html/index.html"
+    }
+   },
+   "DependsOn": [
+    "InstanceRole3CCE2F1D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/MyInstance/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/81S247aMBD9lvUjMmkXtVuJt0ClVaSqi2C1D0WrarCHMIszTn2B0ij/XoU4Bap+QJ88czyXM2dmkk0+fsje38HRj5Xejw1tsuYr+oB6FUDtJRz99wbVJGtearVuRAU/819eTMVISOHjhjHMLW+pjA4CWRbTdSMYKrwJeT7VHbCIG0NKtK/tq5xv+WUxlz20OketGwEHIAMbMhRO3ywPVQ61KnSyFWk3M1btk19B3Rcp6if+ApHVTkyDiygF1YeH+V/h4D2VXNSHh1xrh94/8dxh4i5GopX/CYteo16ZzlraGPAZNgYv+AXLvbeKzgX+BHdGwQEdY3iEgEc4JdmTl4cAalchB7lCFR2F06OzsV433ayJqkavHNW3AmldcNnxXkaD550r4IINMfZIP7qyzKi61OFkItOPiEnGbkopRiLdww0HWbAPwArXjaBkpjPq9VY7YiwqKK/WMxzddaGhsUf3GQIk11nT5/Wth2atJKiyZmlN1xe8jxXq2UlMG1E7YkU1mFwpGzlcNhkr7BJydaWRqIChRL2whhShP2t0jZ1yl2LT9F2JayoLZ7dksG3lEr2NTqGcRx9sNbjrTrlz5r//F84eSKObgUeZe49hFaAkLrucBTioMKBrJVuN2Zt/d5hMsvtP2f3dmycau8iBKsyW/fsbXtb6XikEAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "MainStack/EC2Stack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Parameters": {
+  "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter": {
+   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+   "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
+  }
+ }
+}
