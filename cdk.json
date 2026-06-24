@@ -1,6 +1,5 @@
 {
   "app": "npx ts-node --prefer-ts-exts bin/cdk.ts",
-  "output": "build",
   "watch": {
     "include": ["**"],
     "exclude": [

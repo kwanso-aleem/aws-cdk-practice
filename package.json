@@ -5,7 +5,9 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "dev": "cdk watch --no-deploy"
   },
   "devDependencies": {
     "@types/jest": "^30",
